@@ -13,11 +13,13 @@ class HTMLNode:
     def props_to_html(self):
         if self.props is None:
             return ""
+
         prop_str = reduce(
             lambda prev_str, tup: prev_str + f' {tup[0]}="{tup[1]}"',
             self.props.items(),
             ""
         )
+
         return prop_str
 
     def __repr__(self):
@@ -32,9 +34,27 @@ class LeafNode(HTMLNode):
             raise ValueError("LeafNode must contain value.")
         if self.tag is None:
             return self.value
+
         html_str = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
         return html_str
 
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag=tag, children=children, props=props)
+
+    def to_html(self):
+        if self.tag is None:
+            raise ValueError("ParentNode must contain tag.")
+        if self.children is None or not self.children:
+            raise ValueError("ParentNode must contain children nodes.")
+
+        child_str = ""
+        for child in self.children:
+            child_str += child.to_html()
+        html_str = f"<{self.tag}{self.props_to_html()}>{child_str}</{self.tag}>"
+
+        return html_str
 
 
 

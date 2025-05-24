@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_none(self):
@@ -53,6 +53,51 @@ class TestLeafNode(unittest.TestCase):
         node = LeafNode("a", "value text.", props)
         html_str = f'<a href="https://www.google.com" hreflang="en">value text.</a>'
         self.assertEqual(node.to_html(), html_str)
+
+class TestParentNode(unittest.TestCase):
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_with_grandchildren_2(self):
+        children = [
+            LeafNode(None, "raw text"),
+            ParentNode("p",[LeafNode(None, "raw gc text")],{"style": "text-align:right"}),
+            ParentNode("p", [LeafNode("b", "raw gc text2")]),
+            LeafNode("p", "leaf text", props={"id": "hi"})
+        ]
+        node = ParentNode("body", children=children)
+        html_str = ('<body>raw text<p style="text-align:right">raw gc text</p>'
+                    + '<p><b>raw gc text2</b></p><p id="hi">leaf text</p></body>')
+        self.assertEqual(node.to_html(), html_str)
+
+    def test_to_html_with_grandchildren_3(self):
+        ggc = LeafNode("b", "bold text", {"id": "test"})
+        gc = ParentNode("span", [ggc])
+        c = ParentNode("p", [gc])
+        parent = ParentNode("body", [c], {"id": "body"})
+        html_str = '<body id="body"><p><span><b id="test">bold text</b></span></p></body>'
+        self.assertEqual(parent.to_html(), html_str)
+
+    def test_to_html_no_children(self):
+        node = ParentNode("body", None)
+        self.assertRaises(ValueError, node.to_html)
+        node2 = ParentNode("body", [])
+        self.assertRaises(ValueError, node.to_html)
+
+    def test_to_html_no_tag(self):
+        node = ParentNode(None, [LeafNode(None, "text")])
+        self.assertRaises(ValueError, node.to_html)
 
 if __name__ == "__main__":
     unittest.main()
