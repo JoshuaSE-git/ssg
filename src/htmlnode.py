@@ -1,7 +1,6 @@
 from functools import reduce
 
 class HTMLNode:
-
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
         self.value = value
@@ -14,7 +13,6 @@ class HTMLNode:
     def props_to_html(self):
         if self.props is None:
             return ""
-
         prop_str = reduce(
             lambda prev_str, tup: prev_str + f' {tup[0]}="{tup[1]}"',
             self.props.items(),
@@ -24,3 +22,26 @@ class HTMLNode:
 
     def __repr__(self):
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
+
+class LeafNode(HTMLNode):
+    def __init__(self, tag, value, props=None):
+        super().__init__(tag, value, props=props)
+
+    def to_html(self):
+        if self.value is None:
+            raise ValueError("LeafNode must contain value.")
+        if self.tag is None:
+            return self.value
+        html_str = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+        return html_str
+
+
+
+
+
+
+
+
+
+
+
