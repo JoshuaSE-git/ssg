@@ -268,6 +268,8 @@ class TestSplitNodes(unittest.TestCase):
             new_nodes,
         )
 
+    # TODO: add duplicate link and images test
+
 class TestExtraction(unittest.TestCase):
     def test_extract_markdown_images(self):
         matches = extract_markdown_images(

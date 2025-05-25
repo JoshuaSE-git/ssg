@@ -37,7 +37,7 @@ def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
                 new_nodes.append(node)
             else:
                 for img in img_tuples_list:
-                    split_string = node_string.split(f"![{img[0]}]({img[1]})")
+                    split_string = node_string.split(f"![{img[0]}]({img[1]})", 1)
                     if len(split_string[0]) > 0:
                         new_nodes.append(TextNode(split_string[0], TextType.TEXT))
                     new_nodes.append(TextNode(img[0], TextType.IMAGE, img[1]))
@@ -60,7 +60,7 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
                 new_nodes.append(node)
             else:
                 for link in link_tuples_list:
-                    split_string = node_string.split(f"[{link[0]}]({link[1]})")
+                    split_string = node_string.split(f"[{link[0]}]({link[1]})", 1)
                     if len(split_string[0]) > 0:
                         new_nodes.append(TextNode(split_string[0], TextType.TEXT))
                     new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
