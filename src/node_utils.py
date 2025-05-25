@@ -26,3 +26,49 @@ def extract_markdown_images(text: str) -> list[tuple[str, str]]:
 
 def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     return re.findall(r"(?<!!)\[([^\[\]]*)]\(([^()]*)\)", text)
+
+def split_nodes_images(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.TEXT:
+            node_string = node.text
+            img_tuples_list = extract_markdown_images(node_string)
+            if len(img_tuples_list) == 0:
+                new_nodes.append(node)
+            else:
+                for img in img_tuples_list:
+                    split_string = node_string.split(f"![{img[0]}]({img[1]})")
+                    if len(split_string[0]) > 0:
+                        new_nodes.append(TextNode(split_string[0], TextType.TEXT))
+                    new_nodes.append(TextNode(img[0], TextType.IMAGE, img[1]))
+                    node_string = split_string[1]
+
+                if len(node_string) > 0:
+                    new_nodes.append(TextNode(node_string, TextType.TEXT))
+        else:
+            new_nodes.append(node)
+
+    return new_nodes
+
+def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.TEXT:
+            node_string = node.text
+            link_tuples_list = extract_markdown_links(node_string)
+            if len(link_tuples_list) == 0:
+                new_nodes.append(node)
+            else:
+                for link in link_tuples_list:
+                    split_string = node_string.split(f"[{link[0]}]({link[1]})")
+                    if len(split_string[0]) > 0:
+                        new_nodes.append(TextNode(split_string[0], TextType.TEXT))
+                    new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
+                    node_string = split_string[1]
+
+                if len(node_string) > 0:
+                    new_nodes.append(TextNode(node_string, TextType.TEXT))
+        else:
+            new_nodes.append(node)
+
+    return new_nodes
