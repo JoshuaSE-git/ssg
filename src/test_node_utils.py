@@ -268,7 +268,154 @@ class TestSplitNodes(unittest.TestCase):
             new_nodes,
         )
 
-    # TODO: add duplicate link and images test
+    def test_split_images_double(self):
+        node = TextNode(
+            "![image](https://i.imgur.com/zjjcJKZ.png)![image](https://i.imgur.com/zjjcJKZ.png)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_images([node])
+        self.assertListEqual(
+            [
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+            ],
+            new_nodes,
+        )
+
+    def test_split_links_double(self):
+        node = TextNode(
+            "[link](https://www.google.com)[link](https://www.google.com)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_links([node])
+        self.assertListEqual(
+            [
+                TextNode("link", TextType.LINK, "https://www.google.com"),
+                TextNode("link", TextType.LINK, "https://www.google.com"),
+            ],
+            new_nodes,
+        )
+
+    def test_split_all(self):
+        md = ("This is **text** with an _italic_ word and a `code block` "
+              + "and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+        new_nodes = text_to_text_nodes(md)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            new_nodes,
+        )
+
+    def test_split_all_text_only(self):
+        new_nodes = text_to_text_nodes("This is raw text only..")
+        self.assertListEqual(
+            [TextNode("This is raw text only..", TextType.TEXT)],
+            new_nodes
+        )
+
+    def test_split_all_empty(self):
+        new_nodes = text_to_text_nodes("")
+        self.assertListEqual(
+            [],
+            new_nodes
+        )
+
+    def test_split_all_error(self):
+        self.assertRaises(Exception, text_to_text_nodes, "Incorrect **bold close.")
+
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_2(self):
+        md = """
+        
+        
+        
+This is **bolded** paragraph
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+
+
+
+- This is a list
+- with items
+
+
+
+
+
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_all(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+
+- another list
+- with items
+
+![solo_image](img link)
+
+[link](link)
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+                "- another list\n- with items",
+                "![solo_image](img link)",
+                "[link](link)"
+            ],
+        )
+
+
 
 class TestExtraction(unittest.TestCase):
     def test_extract_markdown_images(self):
