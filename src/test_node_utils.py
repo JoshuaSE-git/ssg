@@ -466,5 +466,90 @@ class TestExtraction(unittest.TestCase):
         )
         self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png"), ("image2", "https://i.imgur.com/zzzcaxZ.png")], matches)
 
+class TestBlockFunctions(unittest.TestCase):
+    def test_block_to_block_heading(self):
+        self.assertEqual(block_to_block_type("# f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("### f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("#### f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("##### f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("###### f"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## #f#asdfsdf"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## e #f#asdfsdf"), BlockType.HEADING)
+
+    def test_block_to_block_code(self):
+        self.assertEqual(block_to_block_type("```asfd```"), BlockType.CODE)
+        self.assertEqual(block_to_block_type("```  ```"), BlockType.CODE)
+        self.assertEqual(block_to_block_type("```\nasdfasd\n```"), BlockType.CODE)
+        self.assertEqual(block_to_block_type("```\nasd\nasd\nasd\n```"), BlockType.CODE)
+
+    def test_block_to_block_quote(self):
+        self.assertEqual(block_to_block_type(">asdf"), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type(">asdf\n>asdf\n>asdf"), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type(">asdf\n>\n>asdf"), BlockType.QUOTE)
+        self.assertEqual(block_to_block_type(">        asdf    "), BlockType.QUOTE)
+
+    def test_block_to_block_unordered(self):
+        self.assertEqual(block_to_block_type("- "), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type("- hasdf"), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type("-          asfd"), BlockType.UNORDERED_LIST)
+        self.assertEqual(block_to_block_type("- a\n-      b\n- c"), BlockType.UNORDERED_LIST)
+
+    def test_block_to_block_ordered(self):
+        self.assertEqual(block_to_block_type("1. "), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("1. \n2. \n3. "), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("1. a\n2. b\n3. c"), BlockType.ORDERED_LIST)
+        self.assertEqual(block_to_block_type("1. a\n2.         b\n3. c"), BlockType.ORDERED_LIST)
+
+    def test_block_to_block_not_heading(self):
+        self.assertNotEqual(block_to_block_type(" # asdfsdf"), BlockType.HEADING)
+        self.assertNotEqual(block_to_block_type("asdh# asdfsdf"), BlockType.HEADING)
+        self.assertNotEqual(block_to_block_type("#asdfsdf"), BlockType.HEADING)
+        self.assertNotEqual(block_to_block_type("########## asdfsdf"), BlockType.HEADING)
+        self.assertNotEqual(block_to_block_type("##e# asdfsdf"), BlockType.HEADING)
+
+    def test_block_to_block_not_code(self):
+        self.assertNotEqual(block_to_block_type("``asdf``"), BlockType.CODE)
+        self.assertNotEqual(block_to_block_type("`asdf`"), BlockType.CODE)
+        self.assertNotEqual(block_to_block_type("```asdf``"), BlockType.CODE)
+        self.assertNotEqual(block_to_block_type("``asdf```"), BlockType.CODE)
+        self.assertNotEqual(block_to_block_type("```asdf"), BlockType.CODE)
+
+    def test_block_to_block_not_quote(self):
+        self.assertNotEqual(block_to_block_type(">asdf\nasdf\n>asdf"), BlockType.QUOTE)
+
+    def test_block_to_block_not_unordered(self):
+        self.assertNotEqual(block_to_block_type("- sdf\nasfd\n- sdf"), BlockType.UNORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("-sdf\n- asfd\n- sdf"), BlockType.UNORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("-sdf\n-asfd\n-sdf"), BlockType.UNORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("--sdf"), BlockType.UNORDERED_LIST)
+
+    def test_block_to_block_not_ordered(self):
+        self.assertNotEqual(block_to_block_type("1.asdf\n2.asdf"), BlockType.ORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("1 asdf\n2 asdf"), BlockType.ORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("1. asdf\n2. asdf\n4. asdf"), BlockType.ORDERED_LIST)
+        self.assertNotEqual(block_to_block_type("3. asdf\n2. asdf\n1. asdf"), BlockType.ORDERED_LIST)
+
+    def test_block_to_block_paragraph(self):
+        self.assertEqual(block_to_block_type("1.asdf\n2.asdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("1 asdf\n2 asdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("1. asdf\n2. asdf\n4. asdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("3. asdf\n2. asdf\n1. asdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("- sdf\nasfd\n- sdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("-sdf\n- asfd\n- sdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("-sdf\n-asfd\n-sdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("--sdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(">asdf\nasdf\n>asdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("``asdf``"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("`asdf`"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("```asdf``"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("``asdf```"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type(" # asdfsdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("asdh# asdfsdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("#asdfsdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("########## asdfsdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("##e# asdfsdf"), BlockType.PARAGRAPH)
+        self.assertEqual(block_to_block_type("```asdf"), BlockType.PARAGRAPH)
+
 if __name__ == "__main__":
     unittest.main()

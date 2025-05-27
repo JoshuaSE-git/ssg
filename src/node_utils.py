@@ -1,4 +1,5 @@
 import re
+from enum import Enum
 
 from textnode import TextNode, TextType
 
@@ -88,3 +89,51 @@ def markdown_to_blocks(text: str) -> list[str]:
     filtered_blocks = filter(lambda x: len(x) > 0, blocks)
     stripped_blocks = map(str.strip, filtered_blocks)
     return list(stripped_blocks)
+
+class BlockType(Enum):
+    HEADING = "heading"
+    PARAGRAPH = "paragraph"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
+
+def block_to_block_type(block: str) -> BlockType:
+    if block.startswith("```") and block.endswith("```"):
+        return BlockType.CODE
+    if is_heading(block):
+        return BlockType.HEADING
+    lines = block.split("\n")
+    if all_begins_with(lambda x: x.startswith("- "), lines):
+        return BlockType.UNORDERED_LIST
+    if all_begins_with(lambda x: x.startswith(">"), lines):
+        return BlockType.QUOTE
+    order_tracker = create_order_tracker(0)
+    if all_begins_with(lambda x: x[0].isdigit() and order_tracker(x) and x.startswith(". ", 1), lines):
+        return BlockType.ORDERED_LIST
+
+    return BlockType.PARAGRAPH
+
+def all_begins_with(func, lines: list[str]) -> bool:
+    for line in lines:
+        if not func(line):
+            return False
+    return True
+
+def create_order_tracker(start: int):
+    curr_num = start
+    def inner_func(line):
+        nonlocal curr_num
+        curr_num += 1
+        return int(line[0]) == curr_num
+    return inner_func
+
+def is_heading(block: str) -> bool:
+    parts = block.partition(" ")
+    if 0 < len(parts[0]) < 7 and len(parts[2]) > 0:
+        for c in parts[0]:
+            if c != "#":
+                return False
+        return True
+    return False
+
