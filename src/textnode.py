@@ -25,7 +25,7 @@ class TextNode:
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
 
-def text_node_to_html_node(text_node: TextNode):
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     match text_node.text_type:
         case TextType.TEXT:
             return LeafNode(None, text_node.text)
@@ -40,4 +40,4 @@ def text_node_to_html_node(text_node: TextNode):
         case TextType.CODE:
             return LeafNode("code", text_node.text)
         case _:
-            raise ValueError("Unknown text type")
+            raise ValueError(f"Unknown TextType: {text_node.text_type}")

@@ -1,7 +1,7 @@
 import re
-from enum import Enum
 
-from textnode import TextNode, TextType
+from textnode import *
+from htmlnode import *
 
 def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: TextType) -> list[TextNode]:
     new_nodes = []
@@ -13,7 +13,10 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
                 raise Exception(f"Missing delimiter in: {node}")
             for i in range(len(split_text)):
                 if i % 2 == 1:
-                    split_nodes.append(TextNode(split_text[i], text_type))
+                    if split_text[i].startswith(" ") or split_text[i].endswith(" "):
+                        split_nodes.append(TextNode(delimiter + split_text[i] + delimiter, TextType.TEXT))
+                    else:
+                        split_nodes.append(TextNode(split_text[i], text_type))
                 elif len(split_text[i]) > 0:
                     split_nodes.append(TextNode(split_text[i], TextType.TEXT))
             new_nodes.extend(split_nodes)
@@ -83,11 +86,10 @@ def text_to_text_nodes(text: str) -> list[TextNode]:
 
     return split_links
 
-
 def markdown_to_blocks(text: str) -> list[str]:
     blocks = text.split("\n\n")
     filtered_blocks = filter(lambda x: len(x) > 0, blocks)
-    stripped_blocks = map(str.strip, filtered_blocks)
+    stripped_blocks = map(lambda x: x.strip(), filtered_blocks)
     return list(stripped_blocks)
 
 class BlockType(Enum):
@@ -136,4 +138,53 @@ def is_heading(block: str) -> bool:
                 return False
         return True
     return False
+
+def markdown_to_html_node(md: str) -> HTMLNode:
+    children = list(map(block_to_html_node, markdown_to_blocks(md)))
+    return ParentNode("div", children)
+
+def block_to_html_node(block: str) -> ParentNode:
+    tag_map = {
+        BlockType.HEADING: "",
+        BlockType.QUOTE: "blockquote",
+        BlockType.CODE: "pre",
+        BlockType.ORDERED_LIST: "ol",
+        BlockType.UNORDERED_LIST: "ul",
+        BlockType.PARAGRAPH: "p"
+    }
+    block_type = block_to_block_type(block)
+    if block_type == BlockType.HEADING:
+        tag_map[BlockType.HEADING] = f"h{len(block.split(" ", maxsplit=1)[0])}"
+
+    return ParentNode(tag_map[block_type], text_to_children(block))
+
+def text_to_children(block: str) -> list[HTMLNode]:
+    match block_to_block_type(block):
+        case BlockType.PARAGRAPH:
+            return text_to_leaf_nodes(block.replace("\n", " "))
+        case BlockType.CODE:
+            return [ParentNode("code", [LeafNode(None, block.split("```")[1].lstrip("\n"))])]
+        case BlockType.QUOTE:
+            return get_multi_line_children(block, "p", ">")
+        case BlockType.ORDERED_LIST:
+            return get_multi_line_children(block, "li", " ")
+        case BlockType.UNORDERED_LIST:
+            return get_multi_line_children(block, "li", " ")
+        case BlockType.HEADING:
+            return text_to_leaf_nodes(block.split(" ")[1])
+        case _:
+            raise Exception("Invalid BlockType")
+
+def get_multi_line_children(block: str, tag: str, delim: str) -> list[HTMLNode]:
+    lines = block.split("\n")
+    children = []
+    for line in lines:
+        children.append(ParentNode(tag, text_to_leaf_nodes(line.split(delim, maxsplit=1)[1].strip(" "))))
+    return children
+
+def text_to_leaf_nodes(text: str) -> list[LeafNode]:
+    text_nodes = text_to_text_nodes(text)
+    return list(map(text_node_to_html_node, text_nodes))
+
+
 

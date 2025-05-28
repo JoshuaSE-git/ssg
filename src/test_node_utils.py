@@ -343,6 +343,7 @@ This is the same paragraph on a new line
 - This is a list
 - with items
 """
+
         blocks = markdown_to_blocks(md)
         self.assertEqual(
             blocks,
@@ -550,6 +551,144 @@ class TestBlockFunctions(unittest.TestCase):
         self.assertEqual(block_to_block_type("########## asdfsdf"), BlockType.PARAGRAPH)
         self.assertEqual(block_to_block_type("##e# asdfsdf"), BlockType.PARAGRAPH)
         self.assertEqual(block_to_block_type("```asdf"), BlockType.PARAGRAPH)
+
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+    )
+
+    def test_heading(self):
+        md = """
+# h1
+
+## h2
+
+#not
+
+####### not
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>h1</h1><h2>h2</h2><p>#not</p><p>####### not</p></div>",
+    )
+
+    def test_unordered(self):
+        md = """
+-     one
+- **two**
+- _three_
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>one</li><li><b>two</b></li><li><i>three</i></li></ul></div>",
+        )
+    def test_ordered(self):
+        md = """
+1.     one
+2. **two**
+3. _three_
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>one</li><li><b>two</b></li><li><i>three</i></li></ol></div>",
+        )
+
+    def test_quote(self):
+        md = """
+>q1
+>      q2
+>q3
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote><p>q1</p><p>q2</p><p>q3</p></blockquote></div>",
+        )
+    def test_all(self):
+        md = """
+# h1
+
+This is a
+**paragraph**
+_block_ `code`
+
+- u1
+- u2
+
+
+
+
+1. o1
+2. o2
+
+###### h6
+
+![image](url)
+
+A para with [link](url)
+
+
+
+
+** edge **
+**edge **
+** edge**
+_ edge _
+_edge _
+_ edge_
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        print(html)
+        self.maxDiff = None
+        self.assertEqual(
+            html,
+            "<div><h1>h1</h1><p>This is a <b>paragraph</b> <i>block</i> " +
+            "<code>code</code></p><ul><li>u1</li><li>u2</li></ul><ol><li>o1" +
+            "</li><li>o2</li></ol><h6>h6</h6><p><img src=\"url\" alt=\"image\" /></p>" +
+            "<p>A para with <a href=\"url\">link</a></p>" +
+            "<p>** edge ** **edge ** ** edge** _ edge _ _edge _ _ edge_</p></div>",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
