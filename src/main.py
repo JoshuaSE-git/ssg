@@ -14,11 +14,8 @@ def main():
         shutil.rmtree(DIR_PATH_PUBLIC)
     print("Copying static files to public directory...")
     copy_dir_to_dir(DIR_PATH_STATIC, DIR_PATH_PUBLIC)
-    generate_page(
-        os.path.join(DIR_PATH_CONTENT, "index.md"),
-        TEMPLATE_PATH,
-        os.path.join(DIR_PATH_PUBLIC, "index.html")
-    )
+
+    generate_pages_recursive(DIR_PATH_CONTENT, TEMPLATE_PATH, DIR_PATH_PUBLIC)
     return
 
 if __name__ == "__main__":

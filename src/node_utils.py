@@ -177,7 +177,7 @@ def text_to_children(block: str) -> list[HTMLNode]:
         case _:
             raise Exception("Invalid BlockType")
 
-def get_multi_line_children(block: str, tag: str | None, delim: str) -> list[HTMLNode]:
+def get_multi_line_children(block: str, tag: str, delim: str) -> list[HTMLNode]:
     lines = block.split("\n")
     children = []
     for line in lines:

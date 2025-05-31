@@ -2,8 +2,11 @@ import os
 import shutil
 
 from node_utils import *
-from htmlnode import *
-from textnode import *
+
+DIR_PATH_STATIC = "./static"
+DIR_PATH_PUBLIC = "./public"
+DIR_PATH_CONTENT = "./content"
+TEMPLATE_PATH = "./template.html"
 
 def copy_dir_to_dir(src: str, dest: str):
     if not os.path.exists(dest):
@@ -44,6 +47,13 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
 
 def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir_path: str):
     for child in os.listdir(dir_path_content):
+        content_path = os.path.join(dir_path_content, child)
+        if os.path.isfile(content_path) and child[-3:] == ".md":
+            dest_path = os.path.join(dest_dir_path, child[:-3] + ".html")
+            generate_page(content_path, template_path, dest_path)
+        else:
+            dest_path = os.path.join(dest_dir_path, child)
+            generate_pages_recursive(content_path, template_path, dest_path)
 
 
 
