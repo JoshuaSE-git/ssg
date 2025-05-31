@@ -38,6 +38,18 @@ def generate_page(from_path: str, template_path: str, dest_path: str):
 
     dest_parent = os.path.dirname(dest_path)
     if not os.path.exists(dest_parent):
-        os.makedirs(dest_parent)
+        os.makedirs(dest_parent, exist_ok=True)
     with open(dest_path, "w") as f:
         f.write(template)
+
+def generate_pages_recursive(dir_path_content: str, template_path: str, dest_dir_path: str):
+    for child in os.listdir(dir_path_content):
+
+
+
+
+
+
+
+
+
