@@ -182,7 +182,7 @@ def get_multi_line_children(block: str, tag: str | None, delim: str) -> list[HTM
     children = []
     for line in lines:
         if tag is None:
-            children.append(LeafNode(None, line.strip("# ")))
+            children.append(LeafNode(None, line.strip("> ")))
         else:
             children.append(ParentNode(tag, text_to_leaf_nodes(line.split(delim, maxsplit=1)[1].strip(" "))))
     return children
