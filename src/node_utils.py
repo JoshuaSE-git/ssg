@@ -167,7 +167,7 @@ def text_to_children(block: str) -> list[HTMLNode]:
         case BlockType.CODE:
             return [ParentNode("code", [LeafNode(None, block.split("```")[1].lstrip("\n"))])]
         case BlockType.QUOTE:
-            return get_multi_line_children(block, "p", ">")
+            return get_multi_line_children(block, None, ">")
         case BlockType.ORDERED_LIST:
             return get_multi_line_children(block, "li", " ")
         case BlockType.UNORDERED_LIST:
@@ -177,10 +177,13 @@ def text_to_children(block: str) -> list[HTMLNode]:
         case _:
             raise Exception("Invalid BlockType")
 
-def get_multi_line_children(block: str, tag: str, delim: str) -> list[HTMLNode]:
+def get_multi_line_children(block: str, tag: str | None, delim: str) -> list[HTMLNode]:
     lines = block.split("\n")
     children = []
     for line in lines:
+        if tag is None:
+            children.append(LeafNode(None, line.strip("# ")))
+        else:
             children.append(ParentNode(tag, text_to_leaf_nodes(line.split(delim, maxsplit=1)[1].strip(" "))))
     return children
 
