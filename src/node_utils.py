@@ -78,6 +78,8 @@ def split_nodes_links(old_nodes: list[TextNode]) -> list[TextNode]:
     return new_nodes
 
 def text_to_text_nodes(text: str) -> list[TextNode]:
+    if len(text) < 1:
+        return [TextNode('', TextType.TEXT)]
     split_bold = split_nodes_delimiter([TextNode(text, TextType.TEXT)], "**", TextType.BOLD)
     split_italic = split_nodes_delimiter(split_bold, "_", TextType.ITALIC)
     split_code = split_nodes_delimiter(split_italic, "`", TextType.CODE)
@@ -171,15 +173,15 @@ def text_to_children(block: str) -> list[HTMLNode]:
         case BlockType.UNORDERED_LIST:
             return get_multi_line_children(block, "li", " ")
         case BlockType.HEADING:
-            return text_to_leaf_nodes(block.split(" ")[1])
+            return text_to_leaf_nodes(block.split(" ", maxsplit=1)[1])
         case _:
             raise Exception("Invalid BlockType")
 
-def get_multi_line_children(block: str, tag: str, delim: str) -> list[HTMLNode]:
+def get_multi_line_children(block: str, tag: str | None, delim: str) -> list[HTMLNode]:
     lines = block.split("\n")
     children = []
     for line in lines:
-        children.append(ParentNode(tag, text_to_leaf_nodes(line.split(delim, maxsplit=1)[1].strip(" "))))
+            children.append(ParentNode(tag, text_to_leaf_nodes(line.split(delim, maxsplit=1)[1].strip(" "))))
     return children
 
 def text_to_leaf_nodes(text: str) -> list[LeafNode]:

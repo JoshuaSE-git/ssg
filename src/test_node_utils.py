@@ -326,7 +326,7 @@ class TestSplitNodes(unittest.TestCase):
     def test_split_all_empty(self):
         new_nodes = text_to_text_nodes("")
         self.assertListEqual(
-            [],
+            [TextNode('', TextType.TEXT)],
             new_nodes
         )
 
@@ -416,7 +416,8 @@ This is the same paragraph on a new line
             ],
         )
 
-
+    def test_markdown_blocks_empty(self):
+        self.assertListEqual([], markdown_to_blocks(""))
 
 class TestExtraction(unittest.TestCase):
     def test_extract_markdown_images(self):
@@ -642,6 +643,21 @@ the **same** even with inline stuff
             html,
             "<div><blockquote><p>q1</p><p>q2</p><p>q3</p></blockquote></div>",
         )
+
+    def test_quote_empty(self):
+        md = """
+>q1
+> 
+>q3
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote><p>q1</p><p></p><p>q3</p></blockquote></div>",
+        )
+
     def test_all(self):
         md = """
 # h1

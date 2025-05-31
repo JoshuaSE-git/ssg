@@ -47,7 +47,7 @@ class ParentNode(HTMLNode):
     def to_html(self):
         if self.tag is None:
             raise ValueError("ParentNode must contain tag.")
-        if self.children is None or not self.children:
+        if self.children is None or len(self.children) < 1:
             raise ValueError("ParentNode must contain children nodes.")
 
         children_str = reduce(lambda prev_str, curr: prev_str + curr.to_html(), self.children, "")
