@@ -1,46 +1,62 @@
-# Tolkien Fan Club
 
-![JRR Tolkien sitting](/images/tolkien.png)
 
-Here's the deal, **I like Tolkien**.
+# Activity - Arithmetic instructions
 
-> "I am in fact a Hobbit in all but size."
->
-> -- J.R.R. Tolkien
+## Objective
 
-## Blog posts
+Learn to perform arithmetic instructions in Assembly Language.
 
-- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
-- [Why Tom Bombadil Was a Mistake](/blog/tom)
-- [The Unparalleled Majesty of "The Lord of the Rings"](/blog/majesty)
+## Prerequisites
 
-## Reasons I like Tolkien
+- Before doing the lab, please review the lecture.
+- This lab will only work if you run the code on a Linux platform using an Intel x86 platform. The online assembler will not work due to the lack of debugging features.
+- Knowledge of how to run assembly code using nasm assembler in Linux OS.
+- Knowledge of how to debug an assembly code using `gdb`.
 
-- You can spend years studying the legendarium and still not understand its depths
-- It can be enjoyed by children and adults alike
-- Disney _didn't ruin it_ (okay, but Amazon might have)
-- It created an entirely new genre of fantasy
+## Task
 
-## My favorite characters (in order)
+The variables on the right-hand side of the equations are initialized variables. The variable on the left-hand side is not initialized. Perform the following arithmetic instructions.
+__Use separate files for each equation__
 
-1. Gandalf
-2. Bilbo
-3. Sam
-4. Glorfindel
-5. Galadriel
-6. Elrond
-7. Thorin
-8. Sauron
-9. Aragorn
+1. $result=-var1*10$
+2. $result = var1+var2+var3+var4$
+3. $result = (-var1*var2)+var3$
+4. $result=(var1*2)/(var2-3)$, choose $var1$ and $var2$ in such a way that the $result$ datatype is an integer.
 
-Here's what `elflang` looks like (the perfect coding language):
+## Debugging parameters
+
+I recommend using the following debugging parameters to display results. See the lecture contents for the explanation.
 
 ```
-func main(){
-    fmt.Println("Aiya, Ambar!")
-}
+layout asm
+layout regs
+watch (int) result
+break _start
+run
+stepi
 ```
 
-Want to get in touch? [Contact me here](/contact).
+## What to submit?
 
-This site was generated with a custom-built [static site generator](https://www.boot.dev/courses/build-static-site-generator-python) from the course on [Boot.dev](https://www.boot.dev).
+1. Draw a flowchart of your thought process. I found this [online flowchart website](http://www.draw.io/) very useful. However, you can use any application of your choice. (1 mark)
+2. What were your challenges in performing the lab (from design to the implementation phases)? (1 mark)
+3. Working and error-free code. (3 marks)
+
+## How to submit it?
+
+- Upload the work in Canvas and clearly define your responses.
+- Upload the code in __.txt__ format and include comments to describe the code.
+- __Do not compress or zip your work.__
+
+## Deadline
+
+The deadlines are posted on the Syllabus as well as on Canvas.
+
+## Rubric
+
+- All the questions are answered, and the working code is submitted. (Grade 100%)
+- Questions are partially answered, and the code has errors or incorrect output. (Grade 50%)
+
+------
+
+Last updated: Mar 2023 by Dr. Danish Khan. 
