@@ -2,9 +2,7 @@
 
 # Activity - Arithmetic instructions
 
-## Objective
-
-Learn to perform arithmetic instructions in Assembly Language.
+![img](https://i0.wp.com/www.sciencenews.org/wp-content/uploads/2024/02/022424_arithmetic-progression_feat.jpg)
 
 ## Prerequisites
 
